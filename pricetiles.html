@@ -1,0 +1,224 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Price Tiles Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin:0;
+      padding:0;
+      background: #10141f;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+    }
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 24px;
+    }
+    .tile {
+      background: #181d2a;
+      border-radius: 18px;
+      box-shadow: 0 2px 22px rgba(0,16,60,0.17), 0 1.5px 5px rgba(0,0,0,0.08);
+      padding: 18px 12px 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.16s, box-shadow 0.16s;
+      cursor: pointer;
+    }
+    .tile:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(0,38,110,0.19), 0 3px 20px rgba(0,29,87,0.16);
+    }
+    .ticker-symbol {
+      font-size: 1.03em;
+      letter-spacing: 0.02em;
+      color: #dde5f7;
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-shadow: 0 1px 2px #001, 0 0.5px 0px #00367e2a;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-name {
+      font-size: 0.89em;
+      color: #6e799a;
+      margin-bottom: 8px;
+      text-align: center;
+      min-height: 33px;
+      line-height: 1.2;
+    }
+    .ticker-price {
+      font-size: 1.35em;
+      font-weight: 600;
+      color: #30ffb1;
+      margin-bottom: 4px;
+    }
+    .ticker-change {
+      font-size: 0.97em;
+      font-weight: 500;
+      padding: 3px 7px;
+      border-radius: 10px;
+      margin-top: 4px;
+      background: rgba(31,255,140,0.13);
+      color: #47ffb3;
+      display: inline-block;
+      min-width: 51px;
+      text-align: center;
+      transition: background 0.26s, color 0.26s;
+    }
+    .down {
+      background: rgba(255,42,42,0.13);
+      color: #ff7373;
+    }
+    /* Responsive */
+    @media (max-width: 700px){
+      .tiles-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 14px;
+      }
+      .container {
+        padding: 16px 3vw;
+      }
+    }
+    .demo-title {
+      color: #e8ebfc;
+      text-align: center;
+      margin-bottom: 32px;
+      letter-spacing: 0.02em;
+      font-size: 2.2em;
+      font-weight: 700;
+      text-shadow: 0 2px 12px #14235a44;
+    }
+    .demo-sub {
+      color: #9ba7c3;
+      text-align: center;
+      margin-bottom: 26px;
+      font-size: 1.08em;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tiles-grid" id="tilesGrid"></div>
+  </div>
+  <script>
+    // List of demo tickers/stocks/crypto
+    const tileData = [
+      { symbol: "AAPL",  name: "Apple Inc.",            price: 170.94,  change: +1.23 },
+      { symbol: "GOOG",  name: "Alphabet (Google)",     price: 2977.13, change: -13.47 },
+      { symbol: "TSLA",  name: "Tesla",                 price: 232.02,  change: +4.39 },
+      { symbol: "AMZN",  name: "Amazon",                price: 153.67,  change: -0.58 },
+      { symbol: "META",  name: "Meta Platforms",        price: 435.37,  change: +5.17 },
+      { symbol: "MSFT",  name: "Microsoft",             price: 410.11,  change: +2.10 },
+      { symbol: "NVDA",  name: "Nvidia",                price: 1241.13, change: -8.29 },
+      { symbol: "BTCUSD",name: "Bitcoin",               price: 66430,   change: +503 },
+      { symbol: "ETHUSD",name: "Ethereum",              price: 3404,    change: +12 },
+      { symbol: "SOLUSD",name: "Solana",                price: 145.19,  change: -3.2 },
+      { symbol: "DOGE",  name: "Dogecoin",              price: 0.138,   change: +0.006 },
+      { symbol: "BNB",   name: "Binance Coin",          price: 580.11,  change: +1.9 },
+      { symbol: "ADA",   name: "Cardano",               price: 0.47,    change: -0.02 },
+      { symbol: "AVAX",  name: "Avalanche",             price: 27.43,   change: +0.9 },
+      { symbol: "NFLX",  name: "Netflix",               price: 676.10,  change: +1.00 },
+      { symbol: "AMD",   name: "AMD",                   price: 160.34,  change: -0.81 },
+      { symbol: "INTC",  name: "Intel",                 price: 30.50,   change: +0.55 },
+      { symbol: "PYPL",  name: "PayPal",                price: 64.77,   change: -0.10 },
+      { symbol: "MSTR",  name: "MicroStrategy",         price: 1381.90, change: +17.99 },
+      { symbol: "GME",   name: "GameStop",              price: 24.36,   change: +2.16 },
+      { symbol: "XRP",   name: "XRP",                   price: 0.495,   change: -0.008 },
+      { symbol: "LTC",   name: "Litecoin",              price: 78.51,   change: +1.21 },
+      { symbol: "SHOP",  name: "Shopify",               price: 68.87,   change: +0.16 },
+      { symbol: "SPY",   name: "S&P 500 ETF",           price: 544.19,  change: +4.13 },
+      { symbol: "ARKK",  name: "ARK Innovation ETF",    price: 53.45,   change: -0.23 }
+    ];
+    // Helper to format price decently
+    function formatPrice(sym, val) {
+      if (/USD|BTC/i.test(sym)) {
+        if (val > 1000) return val.toLocaleString(undefined, {maximumFractionDigits:0});
+        if (val > 100) return val.toFixed(2);
+        if (val > 1) return val.toFixed(3);
+        return val.toPrecision(3);
+      }
+      if (val < 5) return val.toPrecision(4);
+      return val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    // Helper for change value string
+    function formatChange(val, sym) {
+      if (Math.abs(val) < 0.1 && /USD|BTC|ETH|DOGE|XRP/i.test(sym)) return (val > 0 ? "+" : "") + val.toPrecision(2);
+      if (Math.abs(val) < 1) return (val > 0 ? "+" : "") + val.toFixed(3);
+      return (val > 0 ? "+" : "") + val.toFixed(2);
+    }
+    // Price generator (random walk for demo effect)
+    function updateDemoPrices() {
+      tileData.forEach(obj => {
+        // Save previous price
+        let prevPrice = obj.price;
+        // Simulate change (smaller for stable assets, higher for volatile ones)
+        let v = /BTC|ETH|DOGE|SOL|XRP|LTC|ADA|AVAX|BNB/.test(obj.symbol) ? (Math.random()-0.48)*1.1 : (Math.random()-0.5)*0.7;
+        let delta = obj.price * v * 0.008;
+        // For penny tokens, make sure delta is appropriate
+        if(obj.price<2) delta *= 0.2;
+        // Large stocks less volatile
+        if(obj.price>500) delta *= 0.2;
+        // Don't let price go negative
+        obj.price = Math.max(0.01, obj.price + delta);
+        obj.change = obj.price - prevPrice;
+        // Randomly flip change for some variety
+        if (Math.random()<0.15) obj.change *= -1;
+      });
+    }
+
+    // Initial render
+    function renderTiles() {
+      const grid = document.getElementById("tilesGrid");
+      grid.innerHTML = "";
+      tileData.forEach(obj => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        // Symbol
+        const sym = document.createElement("div");
+        sym.className = "ticker-symbol";
+        sym.textContent = obj.symbol;
+        tile.appendChild(sym);
+        // Name
+        const name = document.createElement("div");
+        name.className = "ticker-name";
+        name.textContent = obj.name;
+        tile.appendChild(name);
+        // Price
+        const pr = document.createElement("div");
+        pr.className = "ticker-price";
+        pr.textContent = formatPrice(obj.symbol, obj.price);
+        tile.appendChild(pr);
+        // Change
+        const ch = document.createElement("div");
+        ch.className = "ticker-change" + (obj.change < 0 ? " down" : "");
+        ch.textContent = formatChange(obj.change, obj.symbol);
+        tile.appendChild(ch);
+        // Add to grid
+        grid.appendChild(tile);
+      });
+    }
+
+    renderTiles();
+
+    // Periodic update for live feeling
+    setInterval(function(){
+      updateDemoPrices();
+      renderTiles();
+    }, 7000);
+
+  </script>
+</body>
+</html>
